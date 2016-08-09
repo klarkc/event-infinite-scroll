@@ -70,6 +70,16 @@ It will raise event when it reaches.
                 type: Number,
                 value: 0,
                 reflectToAttribute: true
+            },
+
+            /**
+             * `reference` You can set a custom node to be used as reference to the scroll here
+             */
+            reference: {
+              type: Object,
+              value: function(){
+                return this.parentNode;
+              }
             }
         },
 
@@ -88,11 +98,11 @@ It will raise event when it reaches.
         },
 
         startObserve: function () {
-            this.parentNode.addEventListener( "scroll", function () {
+            this.reference.addEventListener( "scroll", function () {
                 this.scrolled();
             }.bind( this ) );
 
-            this.parentNode.addEventListener( "mousewheel", function () {
+            this.reference.addEventListener( "mousewheel", function () {
                 this.scrolledWheel();
             }.bind( this ) );
 
@@ -109,7 +119,7 @@ It will raise event when it reaches.
                 }.bind( this ), 10 );
             }.bind( this ) );
 
-            this.observer.observe( this.parentNode, {
+            this.observer.observe( this.reference, {
                 childList:     true,
                 subtree:       true,
                 characterData: true
@@ -117,8 +127,8 @@ It will raise event when it reaches.
         },
 
         stopObserve: function () {
-            this.parentNode.removeEventListener("scroll");
-            this.parentNode.removeEventListener("mousewheel");
+            this.reference.removeEventListener("scroll");
+            this.reference.removeEventListener("mousewheel");
 
             if (this.observer) {
                 this.observer.disconnect();
@@ -126,7 +136,7 @@ It will raise event when it reaches.
         },
 
         scrolledWheel: function () {
-            if ( this.parentNode.scrollHeight == this.parentNode.clientHeight ) {
+            if ( this.reference.scrollHeight == this.reference.clientHeight ) {
                 this.scrolled();
             }
         },
@@ -148,12 +158,12 @@ It will raise event when it reaches.
         },
 
         _isReachTop: function () {
-            return ( this.parentNode.scrollTop <= this.scrollOffset );
+            return ( this.reference.scrollTop <= this.scrollOffset );
         },
 
         _isReachBottom: function () {
-            var scrollBottom = this.parentNode.scrollTop + this.parentNode.clientHeight;
-            var belowView = this.parentNode.scrollHeight - scrollBottom;
+            var scrollBottom = this.reference.scrollTop + this.reference.clientHeight;
+            var belowView = this.reference.scrollHeight - scrollBottom;
             return ( belowView <= this.scrollOffset );
         }
     });
