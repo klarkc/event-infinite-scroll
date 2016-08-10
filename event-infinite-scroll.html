@@ -104,13 +104,16 @@ It will raise event when it reaches.
               eventTarget = document;
             }
 
-            eventTarget.addEventListener( "scroll", function () {
+            this._scrollListener = function () {
                 this.scrolled();
-            }.bind( this ) );
+            }.bind( this );
 
-            eventTarget.addEventListener( "mousewheel", function () {
+            this._mousewheelListener = function () {
                 this.scrolledWheel();
-            }.bind( this ) );
+            }.bind( this );
+
+            eventTarget.addEventListener( "scroll",  this._scrollListener);
+            eventTarget.addEventListener( "mousewheel", this._mousewheelListener);
 
             var self = this;
 
@@ -138,8 +141,8 @@ It will raise event when it reaches.
                 eventTarget = document;
             }
 
-            eventTarget.removeEventListener("scroll");
-            eventTarget.removeEventListener("mousewheel");
+            eventTarget.removeEventListener("scroll", this._scrollListener);
+            eventTarget.removeEventListener("mousewheel", this._mousewheelListener);
 
             if (this.observer) {
                 this.observer.disconnect();
