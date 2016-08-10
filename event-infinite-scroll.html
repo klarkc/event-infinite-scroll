@@ -45,8 +45,15 @@ It will raise event when it reaches.
              */
             autoStart: {
                 type: Boolean,
-                value: false,
-                observer: '_startScroll'
+                value: false
+            },
+
+            /**
+             * Track whole document body instead of parentNode
+             */
+            body: {
+                type: Boolean,
+                value: false
             },
 
             /**
@@ -70,18 +77,12 @@ It will raise event when it reaches.
                 type: Number,
                 value: 0,
                 reflectToAttribute: true
-            },
-
-            /**
-             * `reference` You can set a custom node to be used as reference to the scroll here
-             */
-            reference: {
-              type: Object,
-              value: function(){
-                return this.parentNode;
-              }
             }
         },
+
+        observers: [
+            '_startScroll(autoStart, body)'
+        ],
 
         observerStatus: true,
         observer: null,
@@ -91,18 +92,23 @@ It will raise event when it reaches.
          *
          * @readyOnStart [boolean] autoStart
          */
-        _startScroll: function( newValue ) {
-            if ( newValue ) {
+        _startScroll: function( autoStart, body ) {
+            if ( newValue && body ) {
                 this.startObserve();
             }
         },
 
         startObserve: function () {
-            this.reference.addEventListener( "scroll", function () {
+            var eventTarget = this.parentNode;
+            if(this.body) {
+              eventTarget = document;
+            }
+
+            eventTarget.addEventListener( "scroll", function () {
                 this.scrolled();
             }.bind( this ) );
 
-            this.reference.addEventListener( "mousewheel", function () {
+            eventTarget.addEventListener( "mousewheel", function () {
                 this.scrolledWheel();
             }.bind( this ) );
 
@@ -119,7 +125,7 @@ It will raise event when it reaches.
                 }.bind( this ), 10 );
             }.bind( this ) );
 
-            this.observer.observe( this.reference, {
+            this.observer.observe( eventTarget, {
                 childList:     true,
                 subtree:       true,
                 characterData: true
@@ -127,8 +133,13 @@ It will raise event when it reaches.
         },
 
         stopObserve: function () {
-            this.reference.removeEventListener("scroll");
-            this.reference.removeEventListener("mousewheel");
+            var eventTarget = this.parentNode;
+            if(this.body) {
+                eventTarget = document;
+            }
+
+            eventTarget.removeEventListener("scroll");
+            eventTarget.removeEventListener("mousewheel");
 
             if (this.observer) {
                 this.observer.disconnect();
@@ -136,7 +147,12 @@ It will raise event when it reaches.
         },
 
         scrolledWheel: function () {
-            if ( this.reference.scrollHeight == this.reference.clientHeight ) {
+            var target = this.parentNode;
+            if(this.body) {
+              target = document.body;
+            }
+
+            if ( target.scrollHeight == target.clientHeight ) {
                 this.scrolled();
             }
         },
@@ -158,12 +174,22 @@ It will raise event when it reaches.
         },
 
         _isReachTop: function () {
-            return ( this.reference.scrollTop <= this.scrollOffset );
+            var target = this.parentNode;
+            if(this.body) {
+                target = document.body;
+            }
+
+            return ( target.scrollTop <= this.scrollOffset );
         },
 
         _isReachBottom: function () {
-            var scrollBottom = this.reference.scrollTop + this.reference.clientHeight;
-            var belowView = this.reference.scrollHeight - scrollBottom;
+            var target = this.parentNode;
+            if(this.body) {
+                target = document.body;
+            }
+
+            var scrollBottom = target.scrollTop + target.clientHeight;
+            var belowView = target.scrollHeight - scrollBottom;
             return ( belowView <= this.scrollOffset );
         }
     });
