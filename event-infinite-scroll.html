@@ -93,7 +93,7 @@ It will raise event when it reaches.
          * @readyOnStart [boolean] autoStart
          */
         _startScroll: function( autoStart, body ) {
-            if ( newValue && body ) {
+            if ( autoStart && body ) {
                 this.startObserve();
             }
         },
